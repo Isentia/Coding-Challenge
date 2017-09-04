@@ -18,8 +18,13 @@ You will be scored on,
 
 # Intructions
 
-- Please use JavaScript, NodeJS, ExpressJS, and AngularJS for the following challenge
+- Please use JavaScript, NodeJS, ExpressJS and ReactJS or AngularJS for the following challenge
+- Solution must be based on lazyloading/pagination, take default count as 20
+- Use bootstrap grid system to support multiple device (for responsivness), 
+- Candidate should use some application packaing node module anyone of them ( grunt , gulp or webpack)
 - Candidate should put their test results on a public code repository hosted on Github
+- Update the README.md file with proper instrucation how to run the project
+
 - Once test is completed please share the Github repository URL to hiring team so they can review your work
 
 # Challenge - Flickr feed viewer and search
@@ -41,4 +46,6 @@ Please check the Flickr API documentation from the following URL:
 You can use the [Twitter Bootstrap](http://getbootstrap.com/) to make your application look good.
 
 Bonus point, if you deploy the app as a public site using Amazon EC2 instance.
+
+Mock screen is attached below , this is just for reference , Candidate must use his/her mind of presecption to give descent look to the solution.
 
