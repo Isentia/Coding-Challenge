@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html >
+  <head>
+    <meta charset="utf-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.0/angular.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <title>Flickr Feed Search</title>
+	<style>
+		  .app-container {
+			display: block;
+		  }
+
+		  .app-container::after {
+			clear: both;
+		  }
+
+		  .flickr-fig {
+			width: 250px;
+			margin: 5px;
+			display: inline-block;
+		  }
+
+		  .flickr-img {
+			width: 240px;
+			padding: 5px;
+			border: 1px solid black;
+			background-color: white;
+		  }
+
+		  .flickr-cap {
+			width: 240px;
+			text-align: center;
+			overflow: hidden;
+		  }
+
+		  #searchCriteria {
+			height: 28px;
+			width: 100%;
+			max-width: 500px;
+			margin-bottom: 10px;
+		  }
+
+		  .app-fieldset {
+			min-width: 0;
+			padding: 0 10px 0 10px;
+			margin: 0;
+			border-bottom: 20px;
+			border: 1px solid #808080;
+		  }
+
+		  .app-legend {
+			display: block;
+			width: auto;
+			padding: 0 10px 0 10px;
+			margin-bottom: 20px;
+			font-size: 21px;
+			line-height: inherit;
+			color: #333;
+			border: 1px solid #808080;
+		  }
+
+		
+		 
+		  input[type=text], textarea {
+			-webkit-transition: all 0.30s ease-in-out;
+			-moz-transition: all 0.30s ease-in-out;
+			-ms-transition: all 0.30s ease-in-out;
+			-o-transition: all 0.30s ease-in-out;
+			transition: all 0.30s ease-in-out;
+			outline: none;
+			padding: 3px 0px 3px 3px;
+			margin: 5px 1px 3px 0px;
+			border: 1px solid #DDDDDD;
+		  }
+
+		  input[type=text]:focus, textarea:focus {
+			box-shadow: 0 0 5px rgb(0, 255, 33);
+			padding: 3px 0px 3px 3px;
+			margin: 5px 1px 3px 0px;
+			border: 1px solid rgb(0, 255, 33);
+		  }
+
+		  input[type=text]:invalid {
+			box-shadow: 0 0 5px rgb(255, 0, 0);
+			padding: 3px 0px 3px 3px;
+			margin: 5px 1px 3px 0px;
+			border: 1px solid rgb(255, 0, 0);
+		  }
+
+		
+		
+		  form {
+			margin-bottom: 20px;
+		  }
+
+		  .hidden {
+			visibility: hidden;
+		  }	
+	</style>
+  </head>
+  <body ng-app="flickrFeedViewApp">
+	<script>
+	  angular.module('flickrFeedViewApp', [])
+		.controller('flickrFeedViewController', ['$scope', '$http', function($scope, $http) {
+      
+			$scope.images = {};
+			$scope.title = '';
+			$scope.showTags = false;
+			$scope.searchCriteria = {
+				tags: null ,
+				mode: null
+			};
+		
+			// toggle search mode
+			$scope.toggleMode = function(mode){
+				$scope.searchCriteria.mode = mode;
+			}
+
+			$scope.search = function (searchCriteria) {
+				// build URL for Flickr API
+				var flickrAPI = buildFlickrAPI(searchCriteria);
+				
+				// send AJAX query to Flickr API
+				$http.jsonp(flickrAPI)
+				  .success(function (data, status, headers, config) {
+				  $scope.images = data;
+				  $scope.imagesStatus = status;
+				  $scope.title = $scope.images.items && $scope.images.items.length > 0 ? $scope.images.title : 'No Images';
+				}).error(function (data, status, headers, config) {
+				  $scope.images = data;
+				  $scope.imagesStatus = status;
+				  $scope.title = 'No Images';
+				});
+				
+				if (searchCriteria && searchCriteria.tags) {
+					// reset form validation
+					$scope.form.tags.$setValidity();
+				}
+			};
+      
+		    // reset form to initial state
+		    $scope.resetForm = function (form) {
+				$scope.form.tags.$setValidity();
+				$scope.images = {};
+				$scope.searchCriteria = {};
+				$scope.title = '';
+		    };
+	  
+		    function buildFlickrAPI (searchCriteria){
+				var flickrAPI = "http://api.flickr.com/services/feeds/photos_public.gne";
+				
+				flickrAPI = flickrAPI + "?jsoncallback=JSON_CALLBACK"
+									  + "&format=json";
+					
+				var mode = 	$scope.searchCriteria.mode ? $scope.searchCriteria.mode : 'All';
+				if (searchCriteria && searchCriteria.tags) {		
+					flickrAPI = flickrAPI + "&tags=" + encodeURIComponent($scope.searchCriteria.tags)
+									      + "&tagmode=" + mode;
+									   
+					$scope.form.tags.$setUntouched();
+				    $scope.form.tags.$setValidity();
+				}
+		
+				return flickrAPI;
+			}
+			
+			//init load images from public feed api
+			$scope.search($scope.searchCriteria);
+    }]);
+</script>
+	<div class="panel panel-default" ng-controller="flickrFeedViewController">
+		<div class="panel-body">
+			 <h1>View and Search Flickr API</h1>
+			 <div class="app-container">	
+			  <fieldset class="app-fieldset">
+				<legend class="app-legend">
+				  <img src="https://avatars2.githubusercontent.com/u/15664055?s=200&v=4" style="width:30px;"/> Isentia Flickr Search
+				</legend>
+				<form name="form" class="validate-form">
+				  <input id="searchCriteria"
+						 ng-model="searchCriteria.tags"
+						 ng-target="form.tags"
+						 name=" tags"
+						 type="text"
+						 title="search tags"
+						 placeholder="Enter the tag to search."
+						 required />
+				  <br />
+				  Search Mode:
+				  <input type="radio" name="SearchMode" value="any" ng-click="toggleMode('Any');" />Any Tags
+				  <input type="radio" name="SearchMode" value="all" checked ng-click="toggleMode('All');"/>All Tags
+				  <br />
+				  Show Tags: <input type="checkbox" ng-model="showTags" />
+				  <br />
+				  <input type="button" class="btn btn-default" ng-click="resetForm(form);" value="Reset" />
+				  <button type="submit" class="btn btn-primary" ng-click="search(searchCriteria);document.getElementsByName('tags').focus();">
+					Search
+				  </button>
+				</form>
+			  </fieldset>
+			 </div>	
+			 <div id="images" ng-if="images" class="app-container">
+			  <h3>
+				{{title}}
+			  </h3>
+			  
+			  <figure class="flickr-fig" ng-repeat="i in images.items">
+				<img class="flickr-img" src="{{i.media.m}}" />
+				<figcaption class="flickr-cap">{{i.title}}</figcaption>
+				<div ng-if="showTags">{{i.tags}}</div>
+			  </figure>
+			</div>
+		</div>
+	</div>  
+  </body>
+</html>
