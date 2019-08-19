@@ -42,4 +42,4 @@ You will be scored on,
 - Store the search results in MongoDB, so next time a `keyword` search is performed against MongoDB data before calling Twitter API
 - Deploy the app as a public site using Amazon EC2 instance
 
-Optional, write the unit tests so we can run autoamted tests.
+Optional, write the unit tests so we can run automated tests.
